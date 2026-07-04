@@ -2,6 +2,11 @@
 
 A full-stack task management application built with Next.js, Express.js, and MongoDB.
 
+## Live Demo
+
+- **Frontend**: https://commu-sync-assessment.vercel.app/
+- **Backend API**: https://commusync-api.onrender.com
+
 ## Tech Stack
 
 - **Frontend**: Next.js 14 (App Router), React, TypeScript, TailwindCSS
@@ -89,6 +94,20 @@ Validation happens at three levels:
 - Backend handles MongoDB errors (duplicates, validation, cast errors)
 - 404 handler for undefined routes
 
+## Deployment
+
+| Component | Platform | URL |
+|-----------|----------|-----|
+| Frontend | Vercel | [commu-sync-assessment.vercel.app](https://commu-sync-assessment.vercel.app/) |
+| Backend | Render | [commusync-api.onrender.com](https://commusync-api.onrender.com) |
+| Database | MongoDB Atlas | Cloud-hosted |
+
+### Free Tier Notes
+
+- **Render**: Backend spins down after 15min inactivity. First request may take 30-60 seconds to wake up.
+- **Vercel**: No limitations for personal use.
+- **MongoDB Atlas**: Free tier with 512MB storage.
+
 ## Getting Started
 
 ### Prerequisites
@@ -100,7 +119,7 @@ Validation happens at three levels:
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Rexskth/CommuSync_Assessment.git
    cd CommuSync_Assessment
    ```
 
@@ -170,3 +189,9 @@ Validation happens at three levels:
   "error": "Error message"
 }
 ```
+
+## Links
+
+- [GitHub Repository](https://github.com/Rexskth/CommuSync_Assessment)
+- [Live Frontend](https://commu-sync-assessment.vercel.app/)
+- [Live API](https://commusync-api.onrender.com/api/tasks)
