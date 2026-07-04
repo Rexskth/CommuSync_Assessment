@@ -1,51 +1,107 @@
 # Mini Task Manager
 
-A simple task management application built with Next.js and Express.js.
+A full-stack task management application built with Next.js, Express.js, and MongoDB.
 
 ## Tech Stack
 
-- **Frontend**: Next.js (App Router), TypeScript, TailwindCSS
+- **Frontend**: Next.js 14 (App Router), React, TypeScript, TailwindCSS
 - **Backend**: Node.js, Express.js, TypeScript
-- **Database**: MongoDB with Mongoose
+- **Database**: MongoDB with Mongoose ODM
+
+## Architecture Decisions
+
+### Why Separate Client/Server?
+
+The requirement specified both Next.js and Node.js + Express as separate technologies. Rather than using Next.js API routes, I chose a monorepo structure with separate client and server applications. This clearly demonstrates:
+
+- RESTful API design with Express
+- Frontend-backend separation of concerns
+- CORS configuration between services
+- Independent deployment capability
+
+### Why Mongoose over native MongoDB driver?
+
+Mongoose provides:
+- Schema validation at the database level
+- TypeScript integration via interfaces
+- Middleware hooks for timestamps
+- Query building convenience
+
+### Validation Strategy
+
+Validation happens at three levels:
+1. **Frontend**: Immediate user feedback via form validation
+2. **API Middleware**: Request validation before reaching controllers
+3. **Mongoose Schema**: Database-level constraints as safety net
 
 ## Project Structure
 
 ```
-├── client/          # Next.js frontend
-│   ├── app/         # App Router pages
-│   ├── components/  # React components
-│   ├── lib/         # Utility functions
-│   └── types/       # TypeScript interfaces
+├── client/                  # Next.js frontend
+│   ├── app/                 # App Router pages
+│   │   ├── layout.tsx       # Root layout with fonts
+│   │   ├── page.tsx         # Home page with state management
+│   │   └── globals.css      # Tailwind imports
+│   ├── components/          # React components
+│   │   ├── TaskForm.tsx     # Task creation form
+│   │   ├── TaskList.tsx     # Task list container
+│   │   └── TaskItem.tsx     # Individual task card
+│   ├── lib/                 # Utility functions
+│   │   └── api.ts           # API client functions
+│   └── types/               # TypeScript interfaces
+│       └── task.ts          # Task-related types
 │
-├── server/          # Express.js backend
+├── server/                  # Express.js backend
 │   └── src/
-│       ├── config/      # Database configuration
-│       ├── controllers/ # Route handlers
-│       ├── middleware/   # Error handling, validation
-│       ├── models/      # Mongoose schemas
-│       └── routes/      # API routes
+│       ├── config/          # Configuration
+│       │   └── db.ts        # MongoDB connection
+│       ├── controllers/     # Route handlers
+│       │   └── taskController.ts
+│       ├── middleware/       # Middleware
+│       │   ├── errorHandler.ts  # Centralized error handling
+│       │   └── validate.ts      # Input validation
+│       ├── models/          # Mongoose schemas
+│       │   └── Task.ts      # Task model
+│       ├── routes/          # API routes
+│       │   └── taskRoutes.ts
+│       └── app.ts           # Express server setup
 ```
 
 ## Features
 
-- Add new tasks
-- View all tasks
-- Mark tasks as completed
-- Delete tasks
+- **Add Task**: Create tasks with title (required) and description (optional)
+- **View Tasks**: See all tasks sorted by newest first
+- **Complete Task**: Toggle task completion status with checkbox
+- **Delete Task**: Remove tasks with confirmation prompt
+
+## Input Validation
+
+| Field | Rules |
+|-------|-------|
+| title | Required, 1-100 characters, trimmed |
+| description | Optional, max 500 characters |
+| task id | Must be valid MongoDB ObjectId |
+
+## Error Handling
+
+- Frontend displays user-friendly error messages
+- API returns consistent `{ success, data?, error? }` format
+- Backend handles MongoDB errors (duplicates, validation, cast errors)
+- 404 handler for undefined routes
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js (v18 or higher)
-- MongoDB (local or Atlas)
+- MongoDB (local installation or Atlas cluster)
 
 ### Installation
 
-1. Install client dependencies:
+1. Clone the repository:
    ```bash
-   cd client
-   npm install
+   git clone <repository-url>
+   cd CommuSync_Assessment
    ```
 
 2. Install server dependencies:
@@ -54,29 +110,63 @@ A simple task management application built with Next.js and Express.js.
    npm install
    ```
 
-3. Create `.env` file in server directory:
-   ```
-   MONGODB_URI=mongodb://localhost:27017/taskmanager
-   PORT=5000
+3. Install client dependencies:
+   ```bash
+   cd ../client
+   npm install
    ```
 
-4. Start the server:
+### Configuration
+
+1. Create server environment file:
+   ```bash
+   cp server/.env.example server/.env
+   ```
+
+2. (Optional) Create client environment file:
+   ```bash
+   cp client/.env.local.example client/.env.local
+   ```
+
+### Running the Application
+
+1. Start MongoDB (if running locally)
+
+2. Start the backend server:
    ```bash
    cd server
    npm run dev
    ```
 
-5. Start the client:
+3. Start the frontend (in a new terminal):
    ```bash
    cd client
    npm run dev
    ```
 
+4. Open http://localhost:3000 in your browser
+
 ## API Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | /api/tasks | Get all tasks |
-| POST | /api/tasks | Create a task |
-| PATCH | /api/tasks/:id | Toggle task completion |
-| DELETE | /api/tasks/:id | Delete a task |
+| Method | Endpoint | Body | Description |
+|--------|----------|------|-------------|
+| GET | /api/tasks | - | Get all tasks |
+| POST | /api/tasks | `{ title, description? }` | Create a task |
+| PATCH | /api/tasks/:id | - | Toggle completion status |
+| DELETE | /api/tasks/:id | - | Delete a task |
+
+### Response Format
+
+```json
+{
+  "success": true,
+  "data": { ... }
+}
+```
+
+```json
+{
+  "success": false,
+  "error": "Error message"
+}
+```
